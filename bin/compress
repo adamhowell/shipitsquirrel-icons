@@ -1,0 +1,55 @@
+#!/usr/bin/env ruby
+
+# Strips the <svg> wrapper from each raw icon under icons/<pack>/ and
+# writes just the inner content (paths/circles/etc.) to
+# compressed/<pack>/. The runtime helper wraps that inner content
+# with its own <svg> tag carrying the size/stroke options the caller
+# passed.
+#
+# Usage:
+#   bin/compress              # compresses every pack
+#   bin/compress feather      # only the feather pack
+#
+# Drop a fresh icon set into icons/<pack>/ and re-run to regenerate
+# compressed/<pack>/.
+
+require "nokogiri"
+require "fileutils"
+
+module Compress
+  ROOT = File.expand_path("..", __dir__)
+  ICONS_ROOT = File.join(ROOT, "icons")
+  COMPRESSED_ROOT = File.join(ROOT, "compressed")
+
+  def self.start!(only_pack: nil)
+    packs = Dir.children(ICONS_ROOT).select { |d| File.directory?(File.join(ICONS_ROOT, d)) }
+    packs = packs.select { |p| p == only_pack } if only_pack
+
+    if packs.empty?
+      warn "No packs found under #{ICONS_ROOT}"
+      return
+    end
+
+    packs.each do |pack|
+      compress_pack(pack)
+    end
+  end
+
+  def self.compress_pack(pack)
+    src = File.join(ICONS_ROOT, pack)
+    dest = File.join(COMPRESSED_ROOT, pack)
+    FileUtils.mkdir_p(dest)
+
+    Dir[File.join(src, "*.svg")].each do |path|
+      name = File.basename(path)
+      doc = Nokogiri::HTML::DocumentFragment.parse(File.read(path))
+      svg = doc.at_css("svg")
+      next unless svg
+      File.write(File.join(dest, name), svg.inner_html.gsub("\n", ""))
+    end
+
+    puts "Compressed #{pack}: #{Dir[File.join(dest, '*.svg')].size} icons"
+  end
+end
+
+Compress.start!(only_pack: ARGV[0])
