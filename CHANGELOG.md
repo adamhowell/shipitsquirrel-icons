@@ -1,15 +1,18 @@
 # Changelog
 
-## [0.1.0] — Unreleased
+## [0.1.0] — 2026-04-25
 
 Initial release as the maintained successor to `rails_feather`.
 
 - Forked from `rails_feather` 0.1.0 (Abeid Ahmed, MIT).
-- Renamed gem to `shipitsquirrel-icons` and module to
-  `Shipitsquirrel::Icons` (helper kept as `feather_icon`).
-- Reorganized icon storage into `compressed/feather/` to leave
-  room for additional packs in future versions.
-- Updated `required_ruby_version` to `>= 3.0`.
-- Modernized Railtie to use `ActiveSupport.on_load(:action_view)`.
-- Same 286 icons as `rails_feather` 0.1.0; refresh against the
-  current upstream Feather release will follow as 0.2.0.
+- Renamed gem to `shipitsquirrel-icons`; module is
+  `Shipitsquirrel::Icons` (helper kept as `feather_icon` for
+  drop-in compatibility).
+- Reorganized icon storage into `compressed/feather/` and
+  `icons/feather/` so future packs (Heroicons, Lucide, Tabler) can
+  sit alongside.
+- Required Ruby bumped to `>= 3.0`.
+- Railtie modernized to use `ActiveSupport.on_load(:action_view)`.
+- `bin/compress` rewritten to walk multiple packs.
+- 287 icons (vs 286 in `rails_feather` 0.1.0 — adds `table`).
+- Test suite ported to the new namespace.
